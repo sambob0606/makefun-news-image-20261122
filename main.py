@@ -1,28 +1,31 @@
-"""Entry point for the news-image-20261122 entry.
+"""Build the 22 November 2026 news poster and save it as entry.png.
 
-Draws the 22 November 2026 world-news poster fresh on every run with the
-pure-stdlib renderer in make_image.py and writes it to
-$MAKEFUN_OUTPUT_DIR/entry.png (or /output/entry.png in the grading sandbox).
-No network, no input files, no clock, no randomness, so both graded runs
-produce identical bytes.
+The picture is drawn from scratch on every run by the renderer in
+make_image.py, using only the Python standard library. The destination is
+$MAKEFUN_OUTPUT_DIR/entry.png, falling back to /output/entry.png in the
+grading sandbox. The program touches no network, reads no files and uses
+no clock or randomness, so repeated runs write byte-identical output.
 """
 
 import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
 
-from make_image import build_entry
+import make_image
 
 
-def run():
-    out = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
-    os.makedirs(out, exist_ok=True)
-    target = os.path.join(out, "entry.png")
-    size = build_entry(target)
-    print("wrote %s (%d bytes)" % (target, size))
+def main():
+    destination_dir = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
+    destination_dir.mkdir(parents=True, exist_ok=True)
+    destination = destination_dir / "entry.png"
+    written = make_image.build_entry(str(destination))
+    print("wrote {} ({} bytes)".format(destination, written))
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(run())
+    sys.exit(main())
